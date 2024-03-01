@@ -24,6 +24,7 @@ class Circuit
     std::vector<Wire*> m_wires;
 		// we need to add the m_pq data member. It should be a min-heap of Event*;
         
+    Heap<Event*, EventLess> m_pq;
 };
 
 #endif

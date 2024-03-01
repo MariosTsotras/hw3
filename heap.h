@@ -2,6 +2,7 @@
 #define HEAP_H
 #include <functional>
 #include <stdexcept>
+#include <vector>
 
 template <typename T, typename PComparator = std::less<T> >
 class Heap
@@ -62,12 +63,50 @@ public:
 private:
   /// Add whatever helper functions and data members you need below
 
-
+  std::vector<T> data;
+  int m_ary;
+  PComparator comp;
 
 
 };
 
-// Add implementation of member functions here
+template <typename T, typename PComparator>
+Heap<T, PComparator>::Heap(int m, PComparator c) 
+: data(), m_ary(m), comp(c) 
+{  }
+
+template <typename T, typename PComparator>
+Heap<T, PComparator>::~Heap() {}
+
+template <typename T, typename PComparator>
+void Heap<T, PComparator>::push(const T& item) {
+  data.push_back(item);
+  std::size_t index = data.size()-1;
+   while (index != 0) {
+        std::size_t parent_index = (index - 1) / m_ary;
+        T& current = data[index];
+        T& parent = data[parent_index];
+        if (comp(parent, current)) {
+            break;
+        }
+        std::swap(current, parent);
+        index = parent_index;
+    }
+}
+
+template <typename T, typename PComparator>
+bool Heap<T, PComparator>::empty() const {
+  if (size() < 1) {
+    return true;
+  }
+  return false;
+}
+
+template <typename T, typename PComparator>
+size_t Heap<T, PComparator>::size() const {
+  return data.size();
+}
+
 
 
 // We will start top() for you to handle the case of 
@@ -81,14 +120,11 @@ T const & Heap<T,PComparator>::top() const
     // ================================
     // throw the appropriate exception
     // ================================
-
-
+    throw std::underflow_error("Heap Empty");
   }
   // If we get here we know the heap has at least 1 item
   // Add code to return the top element
-
-
-
+  return data[0];
 }
 
 
@@ -101,12 +137,42 @@ void Heap<T,PComparator>::pop()
     // ================================
     // throw the appropriate exception
     // ================================
+    throw std::underflow_error("Heap Empty");
+  }
+  if (size() == 1) {
+    data.pop_back();
+    return;
+  }
+  std::swap(data[0], data[size() - 1]);
+  data.pop_back();
 
+  size_t parent_index = 0;
+  size_t maxIndex = size() - 1;
 
+  while (m_ary * parent_index + 1 <= maxIndex) { //while current parent has at least one child
+    size_t mostChildIndex = m_ary * parent_index + 1;
+    
+    for (int i = 2; i <= m_ary; i++) { //find most m_ary child
+      if ((m_ary * parent_index + i) <= maxIndex) { //should check if in range
+        if (comp(data[m_ary * parent_index + i], data[mostChildIndex])) {
+          mostChildIndex = m_ary * parent_index + i;
+        }
+      } else {
+        break;
+      }
+    }
+
+    if (comp(data[mostChildIndex], data[parent_index])) { //swap is necessary
+      std::swap(data[mostChildIndex], data[parent_index]);
+      parent_index = mostChildIndex;
+    } else {
+      return;
+    }
+    
   }
 
-
-
+  
+  
 }
 
 
